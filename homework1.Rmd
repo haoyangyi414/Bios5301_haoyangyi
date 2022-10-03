@@ -2,7 +2,9 @@
 title: 'Bios 6301: Assignment 1'
 author: "Haoyang Yi"
 date: "9/6/2022"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ### Create a Data Set

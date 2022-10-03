@@ -1,20 +1,12 @@
 ---
 title: 'Bios 6301: Assignment 2'
-output: html_document
-author: 'Haoyang Yi'
+author: "Haoyang Yi"
+output:
+  pdf_document: default
+  html_document: default
 ---
 
-*Due Tuesday, 20 September, 1:00 PM*
-
-50 points total.
-
-Add your name as `author` to the file's metadata section.
-
-Submit a single knitr file (named `homework2.rmd`) by email to tianyi.sun@vanderbilt.edu.
-Place your R code in between the appropriate chunks for each question.
-Check your output by using the `Knit HTML` button in RStudio.
-
-1. **Working with data** In the `datasets` folder on the course GitHub repo, you will find a file called `cancer.csv`, which is a dataset in comma-separated values (csv) format. This is a large cancer incidence dataset that summarizes the incidence of different cancers for various subgroups. (18 points)
+### 1. **Working with data** In the `datasets` folder on the course GitHub repo, you will find a file called `cancer.csv`, which is a dataset in comma-separated values (csv) format. This is a large cancer incidence dataset that summarizes the incidence of different cancers for various subgroups. 
 
     1. Load the data set into R and make it a data frame called `cancer.df`. (2 points)
 ```{r}
@@ -52,7 +44,7 @@ nrow(cancer.df[cancer.df$rate==0,])
 cancer.df[which.max(cancer.df$rate),]
 
 ```
-2. **Data types** (10 points)
+### 2. **Data types** 
 
     1. Create the following vector: `x <- c("5","12","7")`. Which of the following commands will produce an error message? For each command, Either explain why they should be errors, or explain the non-erroneous result. (4 points)
 
@@ -83,7 +75,7 @@ z <- data.frame(z1="5",z2=7,z3=12)
 z[1,2] + z[1,3] # it provides the product of numeric value z2(7)+ z3(12)=19
 
 ```
-3. **Data structures** Give R expressions that return the following matrices and vectors (*i.e.* do not construct them manually). (3 points each, 12 total)
+### 3. **Data structures** Give R expressions that return the following matrices and vectors (*i.e.* do not construct them manually). 
 
     1. $(1,2,3,4,5,6,7,8,7,6,5,4,3,2,1)$
 ```{r}
@@ -112,7 +104,7 @@ c(1,rep(2,2),rep(3,3),rep(4,4),rep(5,5))
 x = c(1,2,3,4)
 matrix(c(x,x^2,x^3,x^4,x^5),ncol = 4,byrow = T)
 ```
-4. **Basic programming** (10 points)
+### 4. **Basic programming** 
 
     1. Let $h(x,n)=1+x+x^2+\ldots+x^n = \sum_{i=0}^n x^i$. Write an R program to calculate $h(x,n)$ using a `for` loop. As an example, use `x = 5` and `n = 2`. (5 points)
 ```{r}

@@ -1,20 +1,11 @@
 ---
 title: 'Bios 6301: Assignment 3'
-author: 'Haoyang Yi'
-output: html_document
+author: "Haoyang Yi"
+output:
+  pdf_document: default
+  html_document: default
 ---
 
-*Due Tuesday, 27 September, 1:00 PM*
-
-50 points total.
-
-Add your name as `author` to the file's metadata section.
-
-Submit a single knitr file (named `homework3.rmd`) by email to tianyi.sun@vanderbilt.edu.
-Place your R code in between the appropriate chunks for each question.
-Check your output by using the `Knit HTML` button in RStudio.
-
-$5^{n=day}$ points taken off for each day late.
 
 ### Question 1 ###
 
