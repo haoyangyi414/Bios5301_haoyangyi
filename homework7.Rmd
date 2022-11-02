@@ -143,9 +143,10 @@ str_subset(a, "[^aeiou]{4}")
 ```
 
 6. Return all words with a "q" that isn't followed by a "ui".
-   There's no such word
+   
 ```{r}
-str_subset(a, "q[^ui]")
+str_subset(a, "q[u][^i]") # q must be followed by a u
+
 ```
 
 7. Find all words that contain a "k" followed by another letter. Run the `table` command on the first character following the first "k" of each word.
