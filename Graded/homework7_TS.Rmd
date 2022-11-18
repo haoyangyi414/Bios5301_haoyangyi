@@ -1,0 +1,218 @@
+---
+title: "homework7"
+author: "Haoyang Yi"
+date: "10/28/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(lexicon)
+```
+
+### Question 1 ###
+
+**21 points**
+
+**45/40, great work! Tianyi**
+
+Use the following code to generate data for patients with repeated measures of A1C (a test for levels of blood glucose).
+
+```{r}
+genData <- function(n) {
+    if(exists(".Random.seed", envir = .GlobalEnv)) {
+        save.seed <- get(".Random.seed", envir= .GlobalEnv)
+        on.exit(assign(".Random.seed", save.seed, envir = .GlobalEnv))
+    } else {
+        on.exit(rm(".Random.seed", envir = .GlobalEnv))
+    }
+    set.seed(n)
+    subj <- ceiling(n / 10)
+    id <- sample(subj, n, replace=TRUE)
+    times <- as.integer(difftime(as.POSIXct("2005-01-01"), as.POSIXct("2000-01-01"), units='secs'))
+    dt <- as.POSIXct(sample(times, n), origin='2000-01-01')
+    mu <- runif(subj, 4, 10)
+    a1c <- unsplit(mapply(rnorm, tabulate(id), mu, SIMPLIFY=FALSE), id)
+    data.frame(id, dt, a1c)
+}
+x <- genData(500)
+```
+
+Perform the following manipulations: (3 points each)
+
+1. Order the data set by `id` and `dt`.
+```{r}
+x = arrange(x,id,dt)
+```
+2. For each `id`, determine if there is more than a one year gap in between observations.  Add a new row at the one year mark, with the `a1c` value set to missing.  A two year gap would require two new rows, and so forth.
+```{r}
+for (i in unique(x$id)){
+  for (j in 2:length(x$dt[x$id==i])){
+    dtnow = x$dt[x$id==i][j]
+    dtbefore = x$dt[x$id==i][j-1]
+    ytdiff = as.numeric(dtnow-dtbefore)%/%365
+    while (ytdiff>0){
+      ytdiff = ytdiff-1
+      newrow = data.frame(id=i,dt=dtbefore+years(1),a1c=NA)
+      x = rbind(x,newrow)
+    }
+  }
+}
+x = arrange(x,id,dt)
+```
+3. Create a new column `visit`.  For each `id`, add the visit number.  This should be 1 to `n` where `n` is the number of observations for an individual.  This should include the observations created with missing a1c values.
+
+```{r}
+x = x %>%
+  group_by(id) %>%
+  mutate(visit = 1:length(id))
+```
+4. For each `id`, replace missing values with the mean `a1c` value for that individual.
+```{r}
+x = x %>%
+  group_by(id) %>%
+  mutate(a1c = replace_na(a1c,mean(a1c,na.rm = T)))
+```
+5. Print mean `a1c` for each `id`.
+```{r}
+x %>%
+  group_by(id) %>%
+  summarize(mean_a1c=mean(a1c))
+
+```
+6. Print total number of visits for each `id`.
+```{r}
+x %>%
+  group_by(id) %>%
+  summarize(visits=n())
+```
+7. Print the observations for `id = 15`.
+```{r}
+x[x$id==15,]
+```
+### Question 2 ###
+
+**16 points**
+
+Install the `lexicon` package. Load the `sw_fry_1000` vector, which contains 1,000 common words.
+
+```{r}
+data('sw_fry_1000', package = 'lexicon')
+head(sw_fry_1000)
+```
+
+1. Remove all non-alphabetical characters and make all characters lowercase. Save the result as `a`.
+
+```{r}
+a = tolower(gsub("[^A-Za-z ]", "", sw_fry_1000))
+```
+
+Use vector `a` for the following questions. (2 points each)
+
+2. How many words contain the string "ar"?
+ 64
+```{r}
+length(grep("ar",a))
+```
+
+3. Find a six-letter word that starts with "l" and ends with "r".
+
+```{r}
+for (i in unique(a)){
+if (nchar(i)==6 &startsWith(i,"l")&endsWith(i,"r"))res = i}
+res
+```
+
+4. Return all words that start with "col" or end with "eck".
+
+```{r}
+res = NULL
+for (i in unique(a)){
+if (startsWith(i,"col")|endsWith(i,"eck"))res = append(res,i)
+}
+res
+```
+
+5. Find the number of words that contain 4 or more adjacent consonants. Assume "y" is always a consonant.
+  There are 8 words
+```{r}
+
+str_subset(a, "[^aeiou]{4}")
+
+
+```
+
+6. Return all words with a "q" that isn't followed by a "ui".
+   
+```{r}
+str_subset(a, "q[u][^i]") # q must be followed by a u
+
+```
+
+7. Find all words that contain a "k" followed by another letter. Run the `table` command on the first character following the first "k" of each word.
+
+```{r}
+a1 = str_subset(a,"k[^k]")
+a2=str_split(a1,"k")
+res = NULL
+for (i in 1:length(a2)){
+res = c(res,a2[[i]][2])  
+}
+table(substr(res,1,1))
+```
+
+8. Remove all vowels. How many character strings are found exactly once?
+There are 581 strings found exactly once.
+```{r}
+a3= gsub("[aeiou]", "", a)
+t = table(a3)
+count = 0
+for (i in 1:length(t)){
+if (as.numeric(t[i])==1) count = count+1}
+count
+```
+
+### Question 3 ###
+
+**3 points**
+
+The first argument to most functions that fit linear models are formulas.  The following example defines the response variable `death` and allows the model to incorporate all other variables as terms. `.` is used to mean all columns not otherwise in the formula.
+
+```{r}
+
+haart_df = read.csv('haart.csv')[,c('death','weight','hemoglobin','cd4baseline')]
+coef(summary(glm(death ~ ., data=haart_df, family=binomial(logit))))
+```
+
+Now imagine running the above several times, but with a different response and data set each time.  Here's a function:
+
+```{r}
+myfun <- function(dat, response) {
+  form <- as.formula(response ~ .)
+  coef(summary(glm(form, data=dat, family=binomial(logit))))
+}
+```
+
+Unfortunately, it doesn't work. `tryCatch` is "catching" the error so that this file can be knit to PDF.
+
+```{r}
+tryCatch(myfun(haart_df, death), error = function(e) e)
+```
+
+What do you think is going on?  Consider using `debug` to trace the problem.
+
+The input of the function response cannot be directly assigned as death because it's not a valid value.
+
+**5 bonus points**
+
+Create a working function.
+```{r}
+myfun <- function(dat, response) {
+  y = dat[,response]
+  other = dat[,!(colnames(dat) %in% response)]
+  coef(summary(glm(y~other[,1]+other[,2]+other[,3], family=binomial(logit))))
+}
+myfun(haart_df, "death")
+````
